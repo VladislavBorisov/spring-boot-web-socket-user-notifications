@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script src="sockjs-0.3.4.min.js"></script>
+  <script src="stomp.min.js"></script>
+  <script src="/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<p th:inline="text">
+  You are logged as: <b>[[${#httpServletRequest.remoteUser}]]</b>
+  (<a href="/logout">Logout</a>)
+</p>
+<p>
+  Click the button below to perform an action.
+  <br />
+  <strong>User</strong> will be notified via web socket.
+</p>
+
+<label for="room1">Room 1</label>
+<textarea id="room1" cols="50" rows="10" name="title"></textarea>
+
+<label>Room 2</label>
+<textarea id="room2" cols="50" rows="10" name="title"></textarea>
+
+<label>Room 3</label>
+<textarea id="room3" cols="50" rows="10" name="title"></textarea>
+
+<input id="do-some-action" type="button" value="Send" />
+<!-- Javascript functions -->
+<script>
+    /**
+     * Send an action to the server.
+     */
+    function sendAction(event) {
+
+        var roomsData =  [
+            {"roomId": 1, "notification": $('#room1').val()},
+            {"roomId": 2, "notification": $('#room2').val()},
+            {"roomId": 3, "notification": $('#room3').val()}
+        ];
+        event.preventDefault();
+        $.ajax({
+            url: "/some-action",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(roomsData),
+            type: "POST"
+        });
+    }
+
+    /**
+     * Init operations.
+     */
+    $(document).ready(function() {
+        // Bind the on-click event for the button element.
+        $("#do-some-action").on("click", sendAction);
+
+    });
+
+    // Get the input field
+    var room1 = document.getElementById("room1");
+    var room2 = document.getElementById("room2");
+    var room3 = document.getElementById("room3");
+
+    // Execute a function when the user releases a key on the keyboard
+    room1.addEventListener("keyup", function(event) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+            // Trigger the button element with a click
+            document.getElementById("do-some-action").click();
+        }
+    });
+
+    room2.addEventListener("keyup", function(event) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+            // Trigger the button element with a click
+            document.getElementById("do-some-action").click();
+        }
+    });
+
+    room3.addEventListener("keyup", function(event) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+            // Trigger the button element with a click
+            document.getElementById("do-some-action").click();
+        }
+    });
+
+</script>
+<script src="/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<br />
+<hr />
+<div class="footer">
+  <p>Done by sherybedrock</p>
+</div>
+</body>
+
+<style>
+  .footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #4E86FF;
+    color: white;
+    text-align: center;
+  }
+
+  textarea {
+    vertical-align: top;
+  }
+
+</style>
+</html>

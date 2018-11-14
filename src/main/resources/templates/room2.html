@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="sockjs-0.3.4.min.js"></script>
+    <script src="stomp.min.js"></script>
+    <script src="/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body style="height: 100%">
+<p>
+    Room number 2
+</p>
+<p th:inline="text">
+    You are logged as: <b>[[${#httpServletRequest.remoteUser}]]</b>
+    (<a href="/logout">Logout</a>)
+</p>
+<p>
+    Notifications received on the web socket channel will be displayed below:
+</p>
+
+<img src="/pic.jpg"></img>
+
+<textarea class="center" id="room2" cols="60" rows="10" readonly="readonly"></textarea>
+<!-- Javascript functions -->
+<script>
+
+    /**
+     * Open the web socket connection and subscribe the "/notify" channel.
+     */
+    function connect() {
+        // Create and init the SockJS object
+        var socket = new SockJS('/ws');
+        var stompClient = Stomp.over(socket);
+
+        // Subscribe the '/notify' channel
+        stompClient.connect({}, function (frame) {
+            stompClient.subscribe('/user/queue/notify2', function (notification) {
+                // Call the notify function when receive a notification
+                notify(JSON.parse(notification.body).content);
+            });
+        });
+    }
+
+    /**
+     * Display the notification message.
+     */
+    function notify(message) {
+        $("#room2").val(message + "\n");
+        // setTimeout(function() {
+        //      $("#room2").val('');
+        // },20000);
+    }
+
+    /**
+     * Init operations.
+     */
+    $(document).ready(function () {
+        // Start the web socket connection.
+        connect();
+    });
+
+
+</script>
+<script src="/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<br/>
+<hr/>
+<div class="footer">
+    <p>Done by sherybedrock</p>
+</div>
+
+</body>
+
+<style>
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #4E86FF;
+        color: white;
+        text-align: center;
+    }
+
+    .center{
+        font-size: 3em;
+        color: #dd09ff;
+        font-weight: bold;
+        position:absolute;
+        display:block;
+        left:40%;
+        top:30%;
+        margin-top:-50px;
+        margin-left:-50px;
+        width: 349px;
+        height: 256px;
+        background-color: #f7fcff;
+        text-align: center;
+    }
+</style>
+</html>
