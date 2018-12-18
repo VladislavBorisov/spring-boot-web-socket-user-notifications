@@ -1,0 +1,30 @@
+button {
+    position:absolute;
+    top:13%;
+    left:2%
+}
+
+.test-position {
+    position:absolute;
+    top:2%;
+    left:2%;
+    color: #f7fcff;
+}
+.center {
+    font-size: 3em;
+    color: #f7fcff;
+    font-weight: bold;
+    position: absolute;
+    display: block;
+    top: 30%;
+}
+.container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body {
+    height: 100%;
+}

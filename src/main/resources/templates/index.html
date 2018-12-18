@@ -1,40 +1,85 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-  <script src="sockjs-0.3.4.min.js"></script>
-  <script src="stomp.min.js"></script>
-  <script src="/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="sockjs-0.3.4.min.js"></script>
+    <script src="stomp.min.js"></script>
+    <script src="/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/bootstrap-3.3.7/css/bootstrap.css"></link>
+    <script src="notify.js"></script>
 </head>
 <body>
-<p th:inline="text">
-  You are logged as: <b>[[${#httpServletRequest.remoteUser}]]</b>
-  (<a href="/logout">Logout</a>)
-</p>
-<p>
-  Click the button below to perform an action.
-  <br />
-  <strong>User</strong> will be notified via web socket.
-</p>
+<p th:inline="text">You are logged as: <b>[[${#httpServletRequest.remoteUser}]]</b>(<a href="/logout">Logout</a>)</p>
+<p><strong>User</strong> will be notified via web socket.</p>
 
-<label for="room1">Room 1</label>
-<textarea id="room1" cols="50" rows="10" name="title"></textarea>
+<label id="1" for="room1">Room 1</label>
+<textarea class="elem-demo" id="room1" cols="50" rows="10" name="title"></textarea>
 
-<label>Room 2</label>
-<textarea id="room2" cols="50" rows="10" name="title"></textarea>
+<label id="2">Room 2</label>
+<textarea class="elem-demo2" id="room2" cols="50" rows="10" name="title"></textarea>
 
-<label>Room 3</label>
-<textarea id="room3" cols="50" rows="10" name="title"></textarea>
+<label id="3">Room 3</label>
+<textarea class="elem-demo3" id="room3" cols="50" rows="10" name="title"></textarea>
 
-<input id="do-some-action" type="button" value="Send" />
+<button type="button" id="do-some-action" class="btn btn-info left-button">Send</button>
+
 <!-- Javascript functions -->
 <script>
+
+    function connect() {
+        // Create and init the SockJS object
+        var socket = new SockJS('/ws');
+        var stompClient = Stomp.over(socket);
+        var audio = new Audio('open-ended.mp3');
+
+        socket.onheartbeat = function () {
+            console.log('heartbeat');
+        };
+
+        // Subscribe the '/notify' channel
+        stompClient.connect({}, function (frame) {
+            stompClient.subscribe('/user/queue/notify4', function (notification) {
+                // Call the notify function when receive a notification
+                audio.play();
+                notify(JSON.parse(notification.body).message);
+            });
+            stompClient.subscribe('/user/queue/notify5', function (notification) {
+                audio.play();
+                notify2(JSON.parse(notification.body).message);
+            });
+            stompClient.subscribe('/user/queue/notify6', function (notification) {
+                audio.play();
+                notify3(JSON.parse(notification.body).message);
+            });
+        });
+    }
+
+    /**
+     * Display the notification message.
+     */
+    function notify(message) {
+        $('.elem-demo').notify(message);
+    }
+
+    function notify2(message) {
+        $('.elem-demo2').notify(message);
+    }
+
+    function notify3(message) {
+        $('.elem-demo3').notify(message);
+    }
+
+    $(document).ready(function () {
+        // Start the web socket connection.
+        connect();
+    });
+
     /**
      * Send an action to the server.
      */
     function sendAction(event) {
 
-        var roomsData =  [
+        var roomsData = [
             {"roomId": 1, "notification": $('#room1').val()},
             {"roomId": 2, "notification": $('#room2').val()},
             {"roomId": 3, "notification": $('#room3').val()}
@@ -52,71 +97,48 @@
     /**
      * Init operations.
      */
-    $(document).ready(function() {
+    $(document).ready(function () {
         // Bind the on-click event for the button element.
         $("#do-some-action").on("click", sendAction);
 
     });
 
-    // Get the input field
-    var room1 = document.getElementById("room1");
-    var room2 = document.getElementById("room2");
-    var room3 = document.getElementById("room3");
+    var roomsArray = [document.getElementById("room1"),
+                      document.getElementById("room2"),
+                      document.getElementById("room3")];
 
-    // Execute a function when the user releases a key on the keyboard
-    room1.addEventListener("keyup", function(event) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Number 13 is the "Enter" key on the keyboard
-        if (event.keyCode === 13) {
-            // Trigger the button element with a click
-            document.getElementById("do-some-action").click();
-        }
+    roomsArray.forEach(element => {
+        element.addEventListener("keyup", function (event) {
+            console.log("test");
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                // Trigger the button element with a click
+                document.getElementById("do-some-action").click();
+            }
+        });
     });
 
-    room2.addEventListener("keyup", function(event) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Number 13 is the "Enter" key on the keyboard
-        if (event.keyCode === 13) {
-            // Trigger the button element with a click
-            document.getElementById("do-some-action").click();
-        }
+    $("#1").on('click', function () {
+        window.open("room1", "_blank");
     });
 
-    room3.addEventListener("keyup", function(event) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Number 13 is the "Enter" key on the keyboard
-        if (event.keyCode === 13) {
-            // Trigger the button element with a click
-            document.getElementById("do-some-action").click();
-        }
+    $("#2").on('click', function () {
+        window.open("room2", "_blank");
+    });
+
+    $("#3").on('click', function () {
+        window.open("room3", "_blank");
     });
 
 </script>
-<script src="/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-<br />
-<hr />
-<div class="footer">
-  <p>Done by sherybedrock</p>
-</div>
+<hr/>
 </body>
 
 <style>
-  .footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: #4E86FF;
-    color: white;
-    text-align: center;
-  }
-
-  textarea {
-    vertical-align: top;
-  }
-
+    textarea {
+        vertical-align: top;
+    }
 </style>
 </html>

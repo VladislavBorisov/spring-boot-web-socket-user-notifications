@@ -18,8 +18,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         // Defines user with password and role
-        authenticationManagerBuilder.inMemoryAuthentication()
-                .withUser("admin").password("admin").roles("USER");
+        authenticationManagerBuilder.inMemoryAuthentication().withUser("admin").password("admin").roles("USER");
     }
 
     /**
@@ -28,10 +27,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                // Disable CSRF protection
-                .csrf().disable()
-                // Set default configurations from Spring Security
+        httpSecurity.csrf()
+                .disable()
                 .authorizeRequests()
                 .anyRequest().authenticated()
                 .and()

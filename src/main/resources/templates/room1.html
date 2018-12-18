@@ -1,31 +1,49 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="sockjs-0.3.4.min.js"></script>
     <script src="stomp.min.js"></script>
     <script src="/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/bootstrap-3.3.7/css/bootstrap.css"></link>
+    <link rel="stylesheet" type="text/css" href="custom.css"></link>
 </head>
-<body>
-<p>
-    Room number 1
-</p>
+<body background="pic.jpg">
+<div class="test-position">
+    <p> Room number 1</p>
+    <p th:inline="text">
+        You are logged as: <b>[[${#httpServletRequest.remoteUser}]]</b>(<a href="/logout">Logout</a>)
+    </p>
+</div>
+<button type="button" id="test" class="btn btn-danger right-button" value="HELP ME!">HELP ME!</button>
 
-<p th:inline="text">
-    You are logged as: <b>[[${#httpServletRequest.remoteUser}]]</b>
-    (<a href="/logout">Logout</a>)
-</p>
-
-<p>
-    Notifications received on the web socket channel will be displayed below:
-</p>
-
-<img src="/pic.jpg"></img>
-
-    <textarea class="center" id="room1" readonly="readonly"></textarea>
-
-<!-- Javascript functions -->
+<div class="container">
+    <h1 class="center text-center" id="room1"></h1>
+</div>
 <script>
+
+    function sendAction(event) {
+        var roomsData = [
+            {"roomId": 4, "notification": $('#test').val()}
+        ];
+        event.preventDefault();
+        $.ajax({
+            url: "/some-action",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(roomsData),
+            type: "POST"
+        });
+    }
+
+    /**
+     * Init operations.
+     */
+    $(document).ready(function () {
+        // Bind the on-click event for the button element.
+        $("#test").on("click", sendAction);
+
+    });
 
     /**
      * Open the web socket connection and subscribe the "/notify" channel.
@@ -35,11 +53,15 @@
         var socket = new SockJS('/ws');
         var stompClient = Stomp.over(socket);
 
+        socket.onmessage = function (e) {
+            console.log('message', e.data);
+        };
+
         // Subscribe the '/notify' channel
         stompClient.connect({}, function (frame) {
             stompClient.subscribe('/user/queue/notify1', function (notification) {
                 // Call the notify function when receive a notification
-                notify(JSON.parse(notification.body).content);
+                notify(JSON.parse(notification.body).message);
             });
         });
     }
@@ -48,7 +70,7 @@
      * Display the notification message.
      */
     function notify(message) {
-        $("#room1").val(message + "\n");
+        document.getElementById("room1").innerHTML = message;
     }
 
     /**
@@ -59,42 +81,8 @@
         connect();
     });
 
-
 </script>
-<script src="/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-<br/>
-<hr/>
-<div class="footer">
-    <p>Done by sherybedrock</p>
-</div>
-
-</body>
-
 <style>
-    .footer {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        background-color: #4E86FF;
-        color: white;
-        text-align: center;
-    }
-
-    .center{
-        font-size: 3em;
-        color: blue;
-        font-weight: bold;
-        position:absolute;
-        display:block;
-        left:40%;
-        top:30%;
-        margin-top:-50px;
-        margin-left:-50px;
-        width: 349px;
-        height: 256px;
-        background-color: #f7fcff;
-        text-align: center;
-    }
 </style>
+</body>
 </html>
